@@ -1,7 +1,13 @@
 [package]
 name = "typycal"
 version = "0.1.0"
+authors = ["Sebastian Rollen <rollenseb@gmail.com>"]
 edition = "2021"
+license = "MIT"
+repository = "https://github.com/SebRollen/typycal"
+description = "A lightweight utility for typing and calculating stats about your typing speed."
+keywords = ["cli", "typing", "game"]
+categories = ["command-line-utilities", "games"]
 
 [dependencies]
 rand = "0.8.5"
