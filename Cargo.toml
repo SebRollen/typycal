@@ -12,4 +12,5 @@ categories = ["command-line-utilities", "games"]
 [dependencies]
 itertools = "0.10.3"
 rand = "0.8.5"
+structopt = { version = "0.3.26", default-features = false }
 termion = "1.5.6"
