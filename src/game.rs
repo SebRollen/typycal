@@ -2,6 +2,7 @@ use crate::history::History;
 use crate::input::Input;
 use crate::statistics::Statistics;
 use crate::style::subtle;
+use itertools::peek_nth;
 use rand::seq::IteratorRandom;
 use rand::thread_rng;
 use std::io::{stdin, stdout, Stdout, Write};
@@ -32,6 +33,7 @@ pub struct Game {
     words: Vec<&'static str>,
     history: History,
     stdout: RawTerminal<Stdout>,
+    num_peek: u16,
 }
 
 impl Game {
@@ -42,11 +44,17 @@ impl Game {
             words,
             history: History::default(),
             stdout: stdout().into_raw_mode().unwrap(),
+            num_peek: 3,
         }
     }
 
     pub fn words(n: usize) -> Self {
         Self::new(GameMode::Words(n))
+    }
+
+    pub fn num_peek(mut self, n: u16) -> Self {
+        self.num_peek = n;
+        self
     }
 
     fn initialize_screen(&mut self) -> std::io::Result<()> {
@@ -72,20 +80,15 @@ impl Game {
         self.stdout.flush()
     }
 
-    fn clear_next_word(&mut self) -> std::io::Result<()> {
+    fn clear_next_word(&mut self, i: u16) -> std::io::Result<()> {
         let (width, height) = termion::terminal_size()?;
         write!(
             self.stdout,
             "{}{}",
-            cursor::Goto(width / 2, height / 2 + 1),
+            cursor::Goto(width / 2, height / 2 + i + 1),
             clear::CurrentLine,
         )?;
         self.stdout.flush()
-    }
-
-    fn clear_words(&mut self) -> std::io::Result<()> {
-        self.clear_next_word()?;
-        self.clear_current_word()
     }
 
     fn finalize(mut self) -> std::io::Result<()> {
@@ -103,22 +106,26 @@ impl Game {
         let (width, height) = termion::terminal_size()?;
         self.initialize_screen()?;
         let w = self.words.clone();
-        let mut words = w.iter().peekable();
+        let mut words = peek_nth(w.iter());
+        let num_peek = self.num_peek;
         'words: while let Some(current_word) = words.next() {
             self.history.words.push(current_word.clone());
             let mut input = Input::new(current_word);
-            self.clear_words()?;
+            self.clear_current_word()?;
             write!(self.stdout, "{}", input)?;
-            let next_word = words.peek();
-            if let Some(next) = next_word {
-                write!(
-                    self.stdout,
-                    "{}{}",
-                    cursor::Goto(width / 2, height / 2 + 1),
-                    subtle(next)
-                )?
-            } else {
-                on_last_word = true;
+            for i in 0..num_peek {
+                self.clear_next_word(i)?;
+                let next_word = words.peek_nth(i.into());
+                if let Some(next) = next_word {
+                    write!(
+                        self.stdout,
+                        "{}{}",
+                        cursor::Goto(width / 2, height / 2 + 1 + i as u16),
+                        subtle(next)
+                    )?
+                } else if i == 0 {
+                    on_last_word = true;
+                }
             }
             self.stdout.flush()?;
             loop {

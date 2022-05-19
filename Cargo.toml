@@ -10,5 +10,6 @@ keywords = ["cli", "typing", "game"]
 categories = ["command-line-utilities", "games"]
 
 [dependencies]
+itertools = "0.10.3"
 rand = "0.8.5"
 termion = "1.5.6"
