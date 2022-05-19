@@ -1,4 +1,5 @@
 A lightweight utility for **typ**ing and **cal**culating stats about your typing speed.
 
-https://user-images.githubusercontent.com/38324289/168201940-8df73ce0-5b9c-4473-899e-b2f29304a628.mov
+
+https://user-images.githubusercontent.com/38324289/169410584-86aa7f2d-12db-4c49-820b-774934c2a7da.mov
 
